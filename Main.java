@@ -35,5 +35,13 @@ public class Main {
         parking.getOwnerFloor(1).add(space0);
         parking.getOwnerFloor(2).add(space2);
         parking.getOwnerFloor(2).add(space4);
+        System.out.println(parking.getOwnerFloor(0).getIndexSpace("1234"));
+        System.out.println(parking.getOwnerFloor(1).removeSpace(space3));
+        System.out.println(parking.getOwnerFloor(2).getIndexSpace(space2));
+        for (int i = 0; i < parking.getOwnersFloors(andrey).length; i++) {
+            System.out.println(parking.getOwnersFloors(andrey)[i]);
+        }
+
+        System.out.println(andrey.hashCode());
     }
 }
