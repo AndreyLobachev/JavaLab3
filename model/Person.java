@@ -2,9 +2,6 @@ package model;
 
 import java.util.Objects;
 
-/**
- * @author Pochinaev Kostya
- */
 public class Person implements Cloneable {
 
     private String firstName;
