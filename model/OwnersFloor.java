@@ -3,8 +3,10 @@ package model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class OwnersFloor implements Floor {
+
     private Space[] spaces;
     private int amountOccupiedSpaces;
 
@@ -163,6 +165,32 @@ public class OwnersFloor implements Floor {
         return vehicles;
     }
 
+    @Override
+    public boolean removeSpace(Space space) {
+        int index = getIndexSpace(space);
+        if (index != -1) {
+            removeSpace(index);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int getIndexSpace(Space space) {
+        return getIndexSpace(space.getVehicle().getRegistrationNumber());
+    }
+
+    @Override
+    public int getValueSpaces(Person person) {
+        int count = 0;
+        for (Space space : spaces) {
+            if (space.getPerson().equals(person)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     private boolean checkInvalidIndex(int index) {
         return index < 0 || index >= spaces.length;
     }
@@ -175,10 +203,37 @@ public class OwnersFloor implements Floor {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OwnersFloor{");
-        sb.append("rentedSpaces=").append(Arrays.toString(spaces));
-        sb.append(", amountOccupiedSpaces=").append(amountOccupiedSpaces);
-        sb.append('}');
+        final StringBuilder sb = new StringBuilder("Spaces:\n");
+        for (int i = 0; i < amountOccupiedSpaces; i++) {
+            sb.append(spaces[i]).append("\n");
+        }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OwnersFloor)) return false;
+        OwnersFloor that = (OwnersFloor) o;
+        if (amountOccupiedSpaces == that.amountOccupiedSpaces) {
+            return false;
+        }
+        for (int i = 0; i < amountOccupiedSpaces; i++) {
+            if (!Objects.equals(spaces[i], that.spaces[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+
+        for (int i = 0; i < amountOccupiedSpaces; i++) {
+            result = 71 * result + (spaces[i] == null ? 0 : spaces[i].hashCode());
+        }
+
+        return result;
     }
 }

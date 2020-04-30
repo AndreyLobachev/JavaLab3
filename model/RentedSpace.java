@@ -15,10 +15,21 @@ public class RentedSpace extends AbstractSpace{
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("RentedSpace{");
-        sb.append("person=").append(super.person);
-        sb.append(", vehicle=").append(super.vehicle);
-        sb.append('}');
-        return sb.toString();
+        return super.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

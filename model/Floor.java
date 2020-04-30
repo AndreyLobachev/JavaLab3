@@ -17,6 +17,12 @@ public interface Floor {
 
     Space removeSpace(String registrationNumber);
 
+    boolean removeSpace(Space space);
+
+    int getIndexSpace(Space space);
+
+    int getValueSpaces(Person person);
+
     boolean isSpaceExist(String registrationNumber);
 
     int numberOccupiedSpaces();
@@ -28,4 +34,10 @@ public interface Floor {
     Space[] getLiberalSpace();
 
     Vehicle[] getVehicles();
+
+    boolean equals(Object o);
+
+    int hashCode();
+
+    String toString();
 }

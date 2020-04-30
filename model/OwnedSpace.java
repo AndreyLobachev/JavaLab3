@@ -15,10 +15,21 @@ public class OwnedSpace extends AbstractSpace{
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OwnedSpace{");
-        sb.append("person=").append(person);
-        sb.append(", vehicle=").append(vehicle);
-        sb.append('}');
-        return sb.toString();
+        return super.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

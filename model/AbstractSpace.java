@@ -1,6 +1,9 @@
 package model;
 
-public class AbstractSpace implements Space{
+import java.util.Objects;
+
+public class AbstractSpace implements Space, Cloneable {
+
     protected Person person;
     protected Vehicle vehicle;
 
@@ -41,6 +44,33 @@ public class AbstractSpace implements Space{
 
     @Override
     public boolean isEmptySpace() {
-        return vehicle==null || vehicle == Vehicle.NO_VEHICLE || vehicle.getType().equals(VehicleTypes.NONE);
+        return vehicle == null || vehicle == Vehicle.NO_VEHICLE || vehicle.getType().equals(VehicleTypes.NONE);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("<%s> TC: <%s>", person, vehicle);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractSpace)) return false;
+        AbstractSpace that = (AbstractSpace) o;
+        return Objects.equals(person, that.person) &&
+                Objects.equals(vehicle, that.vehicle);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(person, vehicle);
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        AbstractSpace abstractSpace = (AbstractSpace) super.clone();
+        abstractSpace.person = person;
+        abstractSpace.vehicle = vehicle;
+        return abstractSpace;
     }
 }

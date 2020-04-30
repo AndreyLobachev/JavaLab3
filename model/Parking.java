@@ -1,8 +1,12 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 
 public class Parking {
+
     private Floor[] ownersFloors;
     private int amountOccupiedFloors;
 
@@ -81,6 +85,19 @@ public class Parking {
         return newArray;
     }
 
+    public Floor[] getOwnersFloors(Person person) {
+        List<Floor> floorList = new ArrayList<>();
+        for (Floor ownersFloor : ownersFloors) {
+            for (int i = 0; i < ownersFloor.numberOccupiedSpaces(); i++) {
+                if (ownersFloor.getSpace(i).getPerson().equals(person)) {
+                    floorList.add(ownersFloor);
+                    break;
+                }
+            }
+        }
+        return floorList.toArray(new Floor[0]);
+    }
+
     public Vehicle[] getVehicles() {
         Vehicle[] vehicles = new Vehicle[getTotalAmountVehicles()];
         int counter = 0;
@@ -152,5 +169,15 @@ public class Parking {
         Floor[] newArray = new Floor[newLength];
         System.arraycopy(ownersFloors, 0, newArray, 0, amountOccupiedFloors);
         ownersFloors = newArray;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Floors ");
+        sb.append("(<size>").append(ownersFloors.length).append("):\n");
+        for (Floor ownersFloor : ownersFloors) {
+            sb.append(ownersFloor);
+        }
+        return sb.toString();
     }
 }

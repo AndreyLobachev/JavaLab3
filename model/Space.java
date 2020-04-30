@@ -10,4 +10,12 @@ public interface Space {
     void setVehicle(Vehicle vehicle);
 
     boolean isEmptySpace();
+
+    String toString();
+
+    boolean equals(Object o) ;
+
+    int hashCode() ;
+
+    Object clone() throws CloneNotSupportedException;
 }

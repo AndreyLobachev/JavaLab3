@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Objects;
+
 public class Vehicle {
     private String registrationNumber;
     private String manufacturer;
@@ -40,11 +42,35 @@ public class Vehicle {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Vehicle{");
-        sb.append("registrationNumber='").append(registrationNumber).append('\'');
-        sb.append(", manufacturer='").append(manufacturer).append('\'');
-        sb.append(", model='").append(model).append('\'');
-        sb.append('}');
-        return sb.toString();
+        if (type.equals(VehicleTypes.NONE)) {
+            return "NONE";
+        }
+        return String.format("<%s> <%s> <%s> regNumber: <%s> ", manufacturer, model, type, registrationNumber);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Vehicle)) return false;
+        Vehicle vehicle = (Vehicle) o;
+        return Objects.equals(registrationNumber, vehicle.registrationNumber) &&
+                Objects.equals(manufacturer, vehicle.manufacturer) &&
+                Objects.equals(model, vehicle.model) &&
+                type == vehicle.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(registrationNumber, manufacturer, model, type);
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        Vehicle vehicle = (Vehicle) super.clone();
+        vehicle.type = type;
+        vehicle.manufacturer = manufacturer;
+        vehicle.model = model;
+        vehicle.registrationNumber = registrationNumber;
+        return vehicle;
     }
 }

@@ -2,8 +2,11 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class RentedSpacesFloor implements Floor{
+
+public class RentedSpacesFloor implements Floor {
+
     private Node head;
     private int amountOccupiedSpaces;
 
@@ -137,6 +140,33 @@ public class RentedSpacesFloor implements Floor{
         amountOccupiedSpaces++;
     }
 
+    @Override
+    public boolean removeSpace(Space space) {
+        int index = getIndexSpace(space);
+        if (index != -1) {
+            removeSpace(index);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int getIndexSpace(Space space) {
+        return getIndexSpace(space.getVehicle().getRegistrationNumber());
+    }
+
+    @Override
+    public int getValueSpaces(Person person) {
+        int count = 0;
+        Node node = head.next;
+        for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next) {
+            if (node.value.getPerson().equals(person)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     private void initialHead() {
         head = new Node(null);
         head.next = head;
@@ -149,6 +179,45 @@ public class RentedSpacesFloor implements Floor{
             node = node.next;
         }
         return node;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Rented Spaces:\n");
+        Node node = head.next;
+        for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next) {
+            sb.append(node.value).append("\n");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RentedSpacesFloor)) return false;
+        RentedSpacesFloor that = (RentedSpacesFloor) o;
+        Node node = head.next;
+        Node node1 = that.head.next;
+        if (amountOccupiedSpaces != that.amountOccupiedSpaces) {
+            return false;
+        }
+        for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next, node1 = node1.next) {
+            if (!Objects.equals(node.value, node1.value))
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+
+        Node node = head.next;
+        for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next) {
+            result = 53 * result + (node.value == null ? 0 : node.value.hashCode());
+        }
+
+        return result;
     }
 
     private class Node {
