@@ -9,6 +9,9 @@ public class Person implements Cloneable {
     public final static Person UNKNOWN_PERSON = new Person("", "");
 
     public Person(String firstName, String secondName) {
+        if(firstName == null || secondName == null){
+            throw new NullPointerException();
+        }
         this.firstName = firstName;
         this.secondName = secondName;
     }

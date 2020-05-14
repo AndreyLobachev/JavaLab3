@@ -1,9 +1,8 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.time.LocalDate;
+
 
 public class OwnersFloor implements Floor {
 
@@ -60,6 +59,8 @@ public class OwnersFloor implements Floor {
 
     @Override
     public Space getSpace(String registrationNumber) {
+        if(registrationNumber == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         for (Space currentRentedSpace : spaces) {
             if (currentRentedSpace != null && currentRentedSpace.getVehicle().getRegistrationNumber().equals(registrationNumber)) {
                 return currentRentedSpace;
@@ -70,6 +71,8 @@ public class OwnersFloor implements Floor {
 
     @Override
     public int getIndexSpace(String registrationNumber) {
+        if(registrationNumber == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         for (int i = 0; i < spaces.length; i++) {
             if (spaces[i] != null && spaces[i].getVehicle().getRegistrationNumber().equals(registrationNumber)) {
                 return i;
@@ -80,6 +83,7 @@ public class OwnersFloor implements Floor {
 
     @Override
     public Space setSpace(int index, Space rentedSpace) {
+        if(rentedSpace == null)throw new NullPointerException();
         if (checkInvalidIndex(index)) {
             Space oldRentedSpace = spaces[index];
             spaces[index] = rentedSpace;
@@ -91,7 +95,7 @@ public class OwnersFloor implements Floor {
     @Override
     public Space removeSpace(int index) {
         if (checkInvalidIndex(index)) {
-            return null;
+            throw new IndexOutOfBoundsException();
         }
         Space removedSpace = spaces[index];
         spaces[index] = null;
@@ -108,6 +112,8 @@ public class OwnersFloor implements Floor {
 
     @Override
     public Space removeSpace(String registrationNumber) {
+        if(registrationNumber == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         int index = 0;
         for (Space currentRentedSpace : spaces) {
             if (currentRentedSpace.getVehicle().getRegistrationNumber().equals(registrationNumber)) {
@@ -120,6 +126,8 @@ public class OwnersFloor implements Floor {
 
     @Override
     public boolean isSpaceExist(String registrationNumber) {
+        if(registrationNumber == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         for (Space currentRentedSpace : spaces) {
             if (currentRentedSpace.getVehicle().getRegistrationNumber().equals(registrationNumber)) {
                 return true;
@@ -167,6 +175,7 @@ public class OwnersFloor implements Floor {
 
     @Override
     public boolean removeSpace(Space space) {
+        if(space == null)throw new NullPointerException();
         int index = getIndexSpace(space);
         if (index != -1) {
             removeSpace(index);
@@ -190,9 +199,47 @@ public class OwnersFloor implements Floor {
         }
         return count;
     }
+    @Override
+    public LocalDate getEarlyFinishDate() throws NoRentedSpaceException {
+        LocalDate earlyFinishDate = null;
+        for (Space space : spaces) {
+            if (space.getClass().equals(RentedSpace.class))
+                if (Objects.isNull(earlyFinishDate)) {
+                    earlyFinishDate = ((RentedSpace) space).getFinishDate();
+                } else if (((RentedSpace) space).getFinishDate().isBefore(earlyFinishDate)) {
+                    earlyFinishDate = ((RentedSpace) space).getFinishDate();
+                }
+        }
+        if (Objects.isNull(earlyFinishDate)) {
+            throw new NoRentedSpaceException();
+        }
+        return earlyFinishDate;
+    }
+
+    @Override
+    public Space getSpaceWithEarlyFinishDate() throws NoRentedSpaceException {
+        RentedSpace rentedSpace = null;
+        for (Space space : spaces) {
+            if (space.getClass().equals(RentedSpace.class))
+                if (Objects.isNull(rentedSpace)) {
+                    rentedSpace = (RentedSpace) space;
+                } else if (((RentedSpace) space).getFinishDate().isBefore(rentedSpace.getFinishDate())) {
+                    rentedSpace = (RentedSpace) space;
+                }
+        }
+        if (Objects.isNull(rentedSpace)) {
+            throw new NoRentedSpaceException();
+        }
+        return rentedSpace;
+    }
 
     private boolean checkInvalidIndex(int index) {
         return index < 0 || index >= spaces.length;
+    }
+    private void checkValidRegistrationNumber(String regNumber) {
+        if (!regNumber.matches("[ABEKMHOPCTYX]\\d{3}[ABEKMHOPCTYX]{2}\\d{2,3}")) {
+            throw new RegistrationNumberFormatException();
+        }
     }
 
     private void increaseArraySize(int newLength) {

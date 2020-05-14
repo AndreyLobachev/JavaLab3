@@ -3,6 +3,7 @@ package model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 public class Parking {
@@ -31,7 +32,7 @@ public class Parking {
 
     public boolean add(int index, Floor ownersFloor) {
         if (checkInvalidIndex(index)) {
-            increaseArraySize(ownersFloors.length * 2);
+            throw new IndexOutOfBoundsException();
         }
         for (int i = amountOccupiedFloors++; i >= index; i--) {
             if (i != index) {
@@ -45,13 +46,13 @@ public class Parking {
 
     public Floor getOwnerFloor(int index) {
         if (checkInvalidIndex(index)) {
-            return null;
+            throw new IndexOutOfBoundsException();
         } else return ownersFloors[index];
     }
 
     public Floor setOwnerFloor(int index, Floor ownersFloor) {
         if (checkInvalidIndex(index)) {
-            return null;
+            throw new IndexOutOfBoundsException();
         }
         Floor oldOwnerFloor = ownersFloors[index];
         ownersFloors[index] = ownersFloor;
@@ -60,7 +61,7 @@ public class Parking {
 
     public Floor removeOwnerFloor(int index) {
         if (checkInvalidIndex(index)) {
-            return null;
+            throw new IndexOutOfBoundsException();
         }
         Floor removedOwnerFloor = ownersFloors[index];
         ownersFloors[index] = null;
@@ -86,6 +87,7 @@ public class Parking {
     }
 
     public Floor[] getOwnersFloors(Person person) {
+        if(person == null)throw new NullPointerException();
         List<Floor> floorList = new ArrayList<>();
         for (Floor ownersFloor : ownersFloors) {
             for (int i = 0; i < ownersFloor.numberOccupiedSpaces(); i++) {
@@ -109,33 +111,40 @@ public class Parking {
     }
 
     public Space getSpace(String registrationNumber) {
+        if(registrationNumber == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         for (Floor ownersFloor : ownersFloors) {
             Space rentedSpace = ownersFloor.getSpace(registrationNumber);
             if (rentedSpace != null) {
                 return rentedSpace;
             }
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     public Space removeSpace(String registrationNumber) {
+        if(registrationNumber == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         for (Floor ownersFloor : ownersFloors) {
             Space rentedSpace = ownersFloor.removeSpace(registrationNumber);
             if (rentedSpace != null) {
                 return rentedSpace;
             }
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     public Space setSpace(String registrationNumber, Space rentedSpace) {
+        if(registrationNumber == null)throw new NullPointerException();
+        if(rentedSpace == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         for (Floor ownersFloor : ownersFloors) {
             int indexSpace = ownersFloor.getIndexSpace(registrationNumber);
             if (indexSpace != -1) {
                 return ownersFloor.setSpace(indexSpace, rentedSpace);
             }
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     public int getAmountLiberalFloors() {
@@ -164,6 +173,11 @@ public class Parking {
     private boolean checkInvalidIndex(int index) {
         return index < 0 || index >= ownersFloors.length;
     }
+    private void checkValidRegistrationNumber(String regNumber) {
+        if (!regNumber.matches("[ABEKMHOPCTYX]\\d{3}[ABEKMHOPCTYX]{2}\\d{2,3}")) {
+            throw new RegistrationNumberFormatException();
+        }
+    }
 
     private void increaseArraySize(int newLength) {
         Floor[] newArray = new Floor[newLength];
@@ -180,4 +194,5 @@ public class Parking {
         }
         return sb.toString();
     }
+
 }

@@ -1,16 +1,18 @@
 package model;
 
+import java.time.LocalDate;
+
 public class OwnedSpace extends AbstractSpace{
     public OwnedSpace() {
         super();
     }
 
-    public OwnedSpace(Person person) {
-        super(person);
+    public OwnedSpace(Person person, LocalDate startDate) {
+        super(person, startDate);
     }
 
-    public OwnedSpace(Person person, Vehicle vehicle) {
-        super(person, vehicle);
+    public OwnedSpace(Person person, Vehicle vehicle, LocalDate startDate) {
+        super(person, vehicle,startDate);
     }
 
     @Override

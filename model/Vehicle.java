@@ -1,8 +1,9 @@
 package model;
-
 import java.util.Objects;
+import java.util.regex.Pattern;
 
-public class Vehicle {
+
+public class Vehicle implements Cloneable{
     private String registrationNumber;
     private String manufacturer;
     private String model;
@@ -17,12 +18,17 @@ public class Vehicle {
     }
 
     public Vehicle(String registrationNumber, String manufacturer, String model, VehicleTypes type) {
+        if(registrationNumber == null || manufacturer == null || model == null || type== null){
+            throw new NullPointerException();
+        }
+        if (!Pattern.matches("[ABEKMHOPCTYX]\\d{3}[ABEKMHOPCTYX]\\d{2,3}",registrationNumber)){
+            throw new RegistrationNumberFormatException();
+        }
         this.registrationNumber = registrationNumber;
         this.manufacturer = manufacturer;
         this.model = model;
         this.type = type;
     }
-
     public String getRegistrationNumber() {
         return registrationNumber;
     }

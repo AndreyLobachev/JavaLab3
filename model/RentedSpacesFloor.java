@@ -1,11 +1,13 @@
 package model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 
-public class RentedSpacesFloor implements Floor {
+public class RentedSpacesFloor implements Floor, Cloneable {
 
     private Node head;
     private int amountOccupiedSpaces;
@@ -27,6 +29,8 @@ public class RentedSpacesFloor implements Floor {
 
     @Override
     public boolean add(int index, Space space) {
+        if(space == null) throw new NullPointerException();
+        checkInvalidIndex(index);
         Node newNodes = new Node(space);
         Node currentNodes = getNodeByIndex(index);
         newNodes.next = currentNodes.next;
@@ -38,22 +42,27 @@ public class RentedSpacesFloor implements Floor {
 
     @Override
     public Space getSpace(int index) {
+        checkInvalidIndex(index);
         return getNodeByIndex(index + 1).value;
     }
 
     @Override
     public Space getSpace(String registrationNumber) {
+        if(registrationNumber == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         Node node = head.next;
         for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next) {
             if (node.value.getVehicle().getRegistrationNumber().equals(registrationNumber)) {
                 return node.value;
             }
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     @Override
     public int getIndexSpace(String registrationNumber) {
+        if(registrationNumber == null)throw new NullPointerException();
+        checkValidRegistrationNumber(registrationNumber);
         Node node = head.next;
         for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next) {
             if (node.value.getVehicle().getRegistrationNumber().equals(registrationNumber)) {
@@ -65,6 +74,8 @@ public class RentedSpacesFloor implements Floor {
 
     @Override
     public Space setSpace(int index, Space space) {
+        if(space == null)throw new NullPointerException();
+        checkInvalidIndex(index);
         Node node = getNodeByIndex(index + 1);
         Space oldSpace = node.value;
         node.value = space;
@@ -73,6 +84,7 @@ public class RentedSpacesFloor implements Floor {
 
     @Override
     public Space removeSpace(int index) {
+        checkInvalidIndex(index);
         Node node = getNodeByIndex(index);
         Space removedSpace = node.next.value;
         node.next = node.next.next;
@@ -142,6 +154,7 @@ public class RentedSpacesFloor implements Floor {
 
     @Override
     public boolean removeSpace(Space space) {
+        if(space == null) throw new NullPointerException();
         int index = getIndexSpace(space);
         if (index != -1) {
             removeSpace(index);
@@ -157,6 +170,7 @@ public class RentedSpacesFloor implements Floor {
 
     @Override
     public int getValueSpaces(Person person) {
+        if(person == null)throw new NullPointerException();
         int count = 0;
         Node node = head.next;
         for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next) {
@@ -165,6 +179,41 @@ public class RentedSpacesFloor implements Floor {
             }
         }
         return count;
+    }
+    @Override
+    public LocalDate getEarlyFinishDate() throws NoRentedSpaceException {
+        LocalDate earlyFinishDate = null;
+        Node node = head.next;
+        for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next) {
+            if (node.value.getClass().equals(RentedSpace.class))
+                if (Objects.isNull(earlyFinishDate)) {
+                    earlyFinishDate = ((RentedSpace) node.value).getFinishDate();
+                } else if (((RentedSpace) node.value).getFinishDate().isBefore(earlyFinishDate)) {
+                    earlyFinishDate = ((RentedSpace) node.value).getFinishDate();
+                }
+        }
+        if (Objects.isNull(earlyFinishDate)) {
+            throw new NoRentedSpaceException();
+        }
+        return earlyFinishDate;
+    }
+
+    @Override
+    public Space getSpaceWithEarlyFinishDate() throws NoRentedSpaceException {
+        RentedSpace rentedSpace = null;
+        Node node = head.next;
+        for (int i = 0; i < amountOccupiedSpaces; i++, node = node.next) {
+            if (node.value.getClass().equals(RentedSpace.class))
+                if (Objects.isNull(rentedSpace)) {
+                    rentedSpace = (RentedSpace) node.value;
+                } else if (((RentedSpace) node.value).getFinishDate().isBefore(rentedSpace.getFinishDate())) {
+                    rentedSpace = (RentedSpace) node.value;
+                }
+        }
+        if (Objects.isNull(rentedSpace)) {
+            throw new NoRentedSpaceException();
+        }
+        return rentedSpace;
     }
 
     private void initialHead() {
@@ -180,7 +229,16 @@ public class RentedSpacesFloor implements Floor {
         }
         return node;
     }
-
+    private void checkValidRegistrationNumber(String regNumber) {
+        if (!regNumber.matches("[ABEKMHOPCTYX]\\d{3}[ABEKMHOPCTYX]{2}\\d{2,3}")) {
+            throw new RegistrationNumberFormatException();
+        }
+    }
+    private void checkInvalidIndex(int index) {
+        if (index < 0 || index > amountOccupiedSpaces) {
+            throw new IndexOutOfBoundsException();
+        }
+    }
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Rented Spaces:\n");

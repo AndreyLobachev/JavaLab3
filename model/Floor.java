@@ -1,5 +1,7 @@
 package model;
 
+import java.time.LocalDate;
+
 public interface Floor {
     boolean add(Space rentedSpace);
 
@@ -40,4 +42,8 @@ public interface Floor {
     int hashCode();
 
     String toString();
+
+    LocalDate getEarlyFinishDate() throws NoRentedSpaceException;
+
+    Space getSpaceWithEarlyFinishDate() throws NoRentedSpaceException;
 }

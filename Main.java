@@ -1,47 +1,58 @@
 import model.*;
 
+import java.time.LocalDate;
+
 public class Main {
     public static void main(String[] args) {
         Test();
     }
 
     public static void Test(){
-        Person andrey = new Person("Андрей","Лобачев");
-        Person andreyversiontwo = new Person("Andrey","Lobachev");
-        Person andrew = new Person("Andrew","Luis");
-        Person andriano = new Person("Andriano","Hehe");
-        Person ympalympa = new Person("Ympa","Lumpa");
-        Vehicle gran = new Vehicle("1234","Lada", "Granta",VehicleTypes.CAR);
-        Vehicle mas = new Vehicle("0000", "Mazda", "cx 5",VehicleTypes.CAR);
-        Vehicle volk = new Vehicle("1928", "Volkswagen", "Polo",VehicleTypes.CAR);
-        Vehicle ren = new Vehicle("5557", "Renault", "Sandero",VehicleTypes.CAR);
-        Vehicle kia = new Vehicle("2548", "KIA", "Rio",VehicleTypes.CAR);
-        Space space1 = new RentedSpace(andrey,kia);
-        Space space2 = new RentedSpace(andrew,volk);
-        Space space3 = new RentedSpace(andreyversiontwo,mas);
-        Space space4 = new RentedSpace(ympalympa,gran);
-        Space space5 = new RentedSpace(andriano,ren);
-        Space space6 = new RentedSpace(andrey,ren);
-        Space space0 = new RentedSpace();
-        Parking parking = new Parking(3);
-        parking.addLast(new RentedSpacesFloor());
-        parking.addLast(new RentedSpacesFloor());
-        parking.addLast(new RentedSpacesFloor());
-        parking.getOwnerFloor(0).add(space1);
-        parking.getOwnerFloor(0).add(space4);
-        parking.getOwnerFloor(0).add(0,space5);
-        parking.getOwnerFloor(1).add(space3);
-        parking.getOwnerFloor(1).add(space0);
-        parking.getOwnerFloor(1).add(space0);
-        parking.getOwnerFloor(2).add(space2);
-        parking.getOwnerFloor(2).add(space4);
-        System.out.println(parking.getOwnerFloor(0).getIndexSpace("1234"));
-        System.out.println(parking.getOwnerFloor(1).removeSpace(space3));
-        System.out.println(parking.getOwnerFloor(2).getIndexSpace(space2));
-        for (int i = 0; i < parking.getOwnersFloors(andrey).length; i++) {
-            System.out.println(parking.getOwnersFloors(andrey)[i]);
-        }
+        try {
+            Person andrey = new Person("Andrey","Andrey");
+            Person andrew = new Person("Andrew","Andrew");
+            Person andriano = new Person("Andr","Andr");
+            Person ympa = new Person("ympa","ympa");
+            Person lympa = new Person("lympa","lympa");
+            Vehicle gran = new Vehicle("A123BB111","Lada", "Granta",VehicleTypes.CAR);
+            Vehicle mas = new Vehicle("Y342OA32", "cx 5", "cx 5",VehicleTypes.CAR);
+            Vehicle volk = new Vehicle("K624CT333", "Volkswagen", "Polo",VehicleTypes.CAR);
+            Vehicle ren = new Vehicle("X999XX12", "Renault", "Sandero",VehicleTypes.CAR);
+            Vehicle kia = new Vehicle("E452TT19", "KIA", "Rio",VehicleTypes.CAR);
+            RentedSpace space1 = new RentedSpace(andrey,kia,LocalDate.parse("2015-02-20"),LocalDate.parse("2016-02-20"));
+            RentedSpace space2 = new RentedSpace(andriano,volk,LocalDate.of(2012,02,20),LocalDate.of(2013,02,20));
+            RentedSpace space3 = new RentedSpace(andrew,mas, LocalDate.parse("2018-02-20"),LocalDate.parse("2019-02-20"));
+            RentedSpace space4 = new RentedSpace(lympa,gran,LocalDate.parse("2019-02-20"),LocalDate.parse("2020-02-20"));
+            RentedSpace space5 = new RentedSpace(ympa,ren,LocalDate.parse("2020-02-20"),LocalDate.parse("2021-02-20"));
+            RentedSpace space6 = new RentedSpace(andrey,ren,LocalDate.parse("2018-04-14"),LocalDate.parse("2019-04-14"));
+            RentedSpace space0 = new RentedSpace();
+            Parking parking = new Parking(3);
+            parking.addLast(new RentedSpacesFloor());
+            parking.addLast(new RentedSpacesFloor());
+            parking.addLast(new RentedSpacesFloor());
+            parking.getOwnerFloor(0).add(space1);
+            parking.getOwnerFloor(0).add(space4);
+            parking.getOwnerFloor(0).add(space6);
+            parking.getOwnerFloor(0).add(space5);
+            parking.getOwnerFloor(1).add(space3);
+            parking.getOwnerFloor(1).add(space0);
+            parking.getOwnerFloor(1).add(space0);
+            parking.getOwnerFloor(2).add(space4);
+            parking.getOwnerFloor(2).add(space2);
+            parking.getOwnerFloor(2).add(space2);
+            parking.getOwnerFloor(2).add(space6);
 
-        System.out.println(andrey.hashCode());
+            System.out.println(parking.getOwnerFloor(1).getEarlyFinishDate());
+
+        }
+        catch (NullPointerException e){
+            System.out.println(e.getMessage());
+        }
+        catch (java.lang.IllegalArgumentException e){
+            System.out.println(e.getMessage());
+        }
+        catch (NoRentedSpaceException e){
+            System.out.println(e.getMessage());
+        }
     }
 }
