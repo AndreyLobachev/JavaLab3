@@ -1,13 +1,10 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.NoSuchElementException;
 
 
-public class Parking {
-
+public class Parking  implements Iterable<Floor>{
     private Floor[] ownersFloors;
     private int amountOccupiedFloors;
 
@@ -34,6 +31,7 @@ public class Parking {
         if (checkInvalidIndex(index)) {
             throw new IndexOutOfBoundsException();
         }
+        checkFullnessArray();
         for (int i = amountOccupiedFloors++; i >= index; i--) {
             if (i != index) {
                 ownersFloors[i] = ownersFloors[i - 1];
@@ -80,32 +78,31 @@ public class Parking {
         return ownersFloors.length;
     }
 
-    public Floor[] getOwnerFloors() {
+    public List<Floor> getOwnerFloors() {
         Floor[] newArray = new Floor[amountOccupiedFloors];
         System.arraycopy(ownersFloors, 0, newArray, 0, amountOccupiedFloors);
-        return newArray;
+        Arrays.sort(newArray);
+        return Arrays.asList(newArray);
     }
 
-    public Floor[] getOwnersFloors(Person person) {
+    public Set<Floor> getOwnersFloors(Person person) {
         if(person == null)throw new NullPointerException();
-        List<Floor> floorList = new ArrayList<>();
+        Set<Floor> floors = new HashSet<>();
         for (Floor ownersFloor : ownersFloors) {
             for (int i = 0; i < ownersFloor.numberOccupiedSpaces(); i++) {
                 if (ownersFloor.getSpace(i).getPerson().equals(person)) {
-                    floorList.add(ownersFloor);
+                    floors.add(ownersFloor);
                     break;
                 }
             }
         }
-        return floorList.toArray(new Floor[0]);
+        return floors;
     }
 
-    public Vehicle[] getVehicles() {
-        Vehicle[] vehicles = new Vehicle[getTotalAmountVehicles()];
-        int counter = 0;
+    public Collection<Vehicle> getVehicles() {
+        List<Vehicle> vehicles = new ArrayList<>();
         for (Floor ownersFloor : ownersFloors) {
-            System.arraycopy(ownersFloor.getVehicles(), 0, vehicles, counter, ownersFloor.numberOccupiedSpaces());
-            counter += ownersFloor.getVehicles().length;
+            vehicles.addAll(ownersFloor.getVehicles());
         }
         return vehicles;
     }
@@ -152,8 +149,9 @@ public class Parking {
     }
 
     public int getVehiclesQuantity(VehicleTypes type) {
+        if(type == null)throw new NullPointerException();
         int quantity = 0;
-        Vehicle[] vehicles = getVehicles();
+        Vehicle[] vehicles = getVehicles().toArray(new Vehicle[0]);
         for (Vehicle vehicle : vehicles) {
             if (vehicle.getType().equals(type)) {
                 quantity++;
@@ -165,24 +163,36 @@ public class Parking {
     private int getTotalAmountVehicles() {
         int amount = 0;
         for (Floor ownersFloor : ownersFloors) {
-            amount += ownersFloor.getVehicles().length;
+            amount += ownersFloor.getVehicles().size();
         }
         return amount;
     }
 
     private boolean checkInvalidIndex(int index) {
-        return index < 0 || index >= ownersFloors.length;
+        return index < 0 || index > ownersFloors.length;
     }
-    private void checkValidRegistrationNumber(String regNumber) {
-        if (!regNumber.matches("[ABEKMHOPCTYX]\\d{3}[ABEKMHOPCTYX]{2}\\d{2,3}")) {
-            throw new RegistrationNumberFormatException();
+
+    private void checkFullnessArray() {
+        if (amountOccupiedFloors == ownersFloors.length) {
+            increaseArraySize(ownersFloors.length * 2);
         }
     }
 
     private void increaseArraySize(int newLength) {
-        Floor[] newArray = new Floor[newLength];
+        Floor[] newArray;
+        if (newLength == 0) {
+            newArray = new Floor[8];
+        } else {
+            newArray = new Floor[newLength];
+        }
         System.arraycopy(ownersFloors, 0, newArray, 0, amountOccupiedFloors);
         ownersFloors = newArray;
+    }
+
+    private void checkValidRegistrationNumber(String regNumber) {
+        if (!regNumber.matches("[ABEKMHOPCTYX]\\d{3}[ABEKMHOPCTYX]{2}\\d{2,3}")) {
+            throw new RegistrationNumberFormatException();
+        }
     }
 
     @Override
@@ -195,4 +205,26 @@ public class Parking {
         return sb.toString();
     }
 
+    @Override
+    public Iterator<Floor> iterator() {
+        return new ParkingIterator();
+    }
+
+    private class ParkingIterator implements Iterator<Floor> {
+
+        int index;
+
+        @Override
+        public boolean hasNext() {
+            return index < ownersFloors.length;
+        }
+
+        @Override
+        public Floor next() {
+            if (hasNext()) {
+                return ownersFloors[index++];
+            }
+            return null;
+        }
+    }
 }

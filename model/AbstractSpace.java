@@ -9,7 +9,7 @@ public class AbstractSpace implements Space, Cloneable {
     protected LocalDate startDate;
 
     protected AbstractSpace() {
-        this.person = Person.UNKNOWN_PERSON;
+        person = Person.UNKNOWN_PERSON;
         vehicle = Vehicle.NO_VEHICLE;
         startDate = LocalDate.now();
     }

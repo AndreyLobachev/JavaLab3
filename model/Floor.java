@@ -1,8 +1,12 @@
 package model;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.List;
 
-public interface Floor {
+public interface Floor extends Comparable<Floor>, Iterable<Space>, Collection<Space> {
+
     boolean add(Space rentedSpace);
 
     boolean add(int index, Space rentedSpace);
@@ -31,11 +35,15 @@ public interface Floor {
 
     int totalNumberSpaces();
 
-    Space[] getSpaces(VehicleTypes type);
+    List<Space> getSpaces(VehicleTypes type);
 
-    Space[] getLiberalSpace();
+    Deque<Space> getLiberalSpace();
 
-    Vehicle[] getVehicles();
+    Collection<Vehicle> getVehicles();
+
+    LocalDate getEarlyFinishDate() throws NoRentedSpaceException;
+
+    Space getSpaceWithEarlyFinishDate() throws NoRentedSpaceException;
 
     boolean equals(Object o);
 
@@ -43,7 +51,5 @@ public interface Floor {
 
     String toString();
 
-    LocalDate getEarlyFinishDate() throws NoRentedSpaceException;
-
-    Space getSpaceWithEarlyFinishDate() throws NoRentedSpaceException;
+    Floor clone() throws CloneNotSupportedException;
 }

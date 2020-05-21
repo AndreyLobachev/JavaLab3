@@ -4,7 +4,7 @@ import java.util.*;
 import java.time.LocalDate;
 
 
-public class OwnersFloor implements Floor {
+public class OwnersFloor implements Floor, Cloneable{
 
     private Space[] spaces;
     private int amountOccupiedSpaces;
@@ -29,22 +29,26 @@ public class OwnersFloor implements Floor {
     @Override
     public boolean add(Space space) {
         if (checkInvalidIndex(amountOccupiedSpaces)) {
-            increaseArraySize(spaces.length * 2);
+            throw new IndexOutOfBoundsException();
         }
+        checkFullnessArray();
+        if(space == null)throw new NullPointerException();
         spaces[amountOccupiedSpaces++] = space;
         return true;
     }
 
     @Override
-    public boolean add(int index, Space rentedSpace) {
-        if (checkInvalidIndex(index + 1)) {
-            increaseArraySize(spaces.length * 2);
+    public boolean add(int index, Space space) {
+        if (checkInvalidIndex(index)) {
+            throw new IndexOutOfBoundsException();
         }
+        checkFullnessArray();
+        if(space == null)throw new NullPointerException();
         for (int i = amountOccupiedSpaces++; i >= index; i--) {
             if (i != index) {
                 spaces[i] = spaces[i - 1];
             } else {
-                spaces[i] = rentedSpace;
+                spaces[i] = space;
             }
         }
         return true;
@@ -53,8 +57,8 @@ public class OwnersFloor implements Floor {
     @Override
     public Space getSpace(int index) {
         if (checkInvalidIndex(index)) {
-            return spaces[index];
-        } else return null;
+            throw new IndexOutOfBoundsException();
+        } else return spaces[index];
     }
 
     @Override
@@ -66,7 +70,7 @@ public class OwnersFloor implements Floor {
                 return currentRentedSpace;
             }
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     @Override
@@ -85,11 +89,11 @@ public class OwnersFloor implements Floor {
     public Space setSpace(int index, Space rentedSpace) {
         if(rentedSpace == null)throw new NullPointerException();
         if (checkInvalidIndex(index)) {
-            Space oldRentedSpace = spaces[index];
-            spaces[index] = rentedSpace;
-            return oldRentedSpace;
+            throw new IndexOutOfBoundsException();
         }
-        return null;
+        Space oldRentedSpace = spaces[index];
+        spaces[index] = rentedSpace;
+        return oldRentedSpace;
     }
 
     @Override
@@ -121,7 +125,7 @@ public class OwnersFloor implements Floor {
             }
             index++;
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     @Override
@@ -147,30 +151,30 @@ public class OwnersFloor implements Floor {
     }
 
     @Override
-    public Space[] getSpaces(VehicleTypes type) {
+    public List<Space> getSpaces(VehicleTypes type) {
         List<Space> spacesList = new ArrayList<>();
         for (Space space : spaces) {
             if (space.getVehicle().getType().equals(type)) {
                 spacesList.add(space);
             }
         }
-        return spacesList.toArray(new Space[0]);
+        return spacesList;
     }
 
     @Override
-    public Space[] getLiberalSpace() {
+    public Deque<Space> getLiberalSpace() {
         Space[] liberalSpaces = new Space[spaces.length - amountOccupiedSpaces];
         System.arraycopy(spaces, amountOccupiedSpaces, liberalSpaces, 0, liberalSpaces.length);
-        return liberalSpaces;
+        return new LinkedList<>(Arrays.asList(liberalSpaces));
     }
 
     @Override
-    public Vehicle[] getVehicles() {
+    public Collection<Vehicle> getVehicles() {
         Vehicle[] vehicles = new Vehicle[amountOccupiedSpaces];
         for (int i = 0; i < amountOccupiedSpaces; i++) {
             vehicles[i] = spaces[i].getVehicle();
         }
-        return vehicles;
+        return Arrays.asList(vehicles);
     }
 
     @Override
@@ -199,18 +203,19 @@ public class OwnersFloor implements Floor {
         }
         return count;
     }
+
     @Override
     public LocalDate getEarlyFinishDate() throws NoRentedSpaceException {
         LocalDate earlyFinishDate = null;
         for (Space space : spaces) {
             if (space.getClass().equals(RentedSpace.class))
-                if (Objects.isNull(earlyFinishDate)) {
+                if (earlyFinishDate == null) {
                     earlyFinishDate = ((RentedSpace) space).getFinishDate();
                 } else if (((RentedSpace) space).getFinishDate().isBefore(earlyFinishDate)) {
                     earlyFinishDate = ((RentedSpace) space).getFinishDate();
                 }
         }
-        if (Objects.isNull(earlyFinishDate)) {
+        if (earlyFinishDate == null) {
             throw new NoRentedSpaceException();
         }
         return earlyFinishDate;
@@ -221,24 +226,25 @@ public class OwnersFloor implements Floor {
         RentedSpace rentedSpace = null;
         for (Space space : spaces) {
             if (space.getClass().equals(RentedSpace.class))
-                if (Objects.isNull(rentedSpace)) {
+                if (rentedSpace == null) {
                     rentedSpace = (RentedSpace) space;
                 } else if (((RentedSpace) space).getFinishDate().isBefore(rentedSpace.getFinishDate())) {
                     rentedSpace = (RentedSpace) space;
                 }
         }
-        if (Objects.isNull(rentedSpace)) {
+        if (rentedSpace == null) {
             throw new NoRentedSpaceException();
         }
         return rentedSpace;
     }
 
     private boolean checkInvalidIndex(int index) {
-        return index < 0 || index >= spaces.length;
+        return index < 0 || index > spaces.length;
     }
-    private void checkValidRegistrationNumber(String regNumber) {
-        if (!regNumber.matches("[ABEKMHOPCTYX]\\d{3}[ABEKMHOPCTYX]{2}\\d{2,3}")) {
-            throw new RegistrationNumberFormatException();
+
+    private void checkFullnessArray() {
+        if (amountOccupiedSpaces == spaces.length) {
+            increaseArraySize(spaces.length * 2);
         }
     }
 
@@ -246,6 +252,103 @@ public class OwnersFloor implements Floor {
         Space[] newArray = new Space[newLength];
         System.arraycopy(spaces, 0, newArray, 0, amountOccupiedSpaces);
         spaces = newArray;
+    }
+
+    private void checkValidRegistrationNumber(String regNumber) {
+        if (!regNumber.matches("[ABEKMHOPCTYX]\\d{3}[ABEKMHOPCTYX]{2}\\d{2,3}")) {
+            throw new RegistrationNumberFormatException();
+        }
+    }
+
+    @Override
+    public int compareTo(Floor o) {
+        return Integer.compare(amountOccupiedSpaces, o.numberOccupiedSpaces());
+    }
+
+    @Override
+    public int size() {
+        return amountOccupiedSpaces;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return amountOccupiedSpaces == 0;
+    }
+
+    @Override
+    public boolean contains(Object o) {
+
+        for (int i = 0; i < amountOccupiedSpaces; i++) {
+            if (spaces[i].equals(o)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Object[] toArray() {
+        return spaces;
+    }
+
+    @Override
+    @SuppressWarnings(value = "unchecked")
+    public <T> T[] toArray(T[] a) {
+        return (T[]) spaces;
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return removeSpace((Space) o);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        for (Object x : c) {
+            if (!contains(x)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Space> c) {
+        for (Space object : c) {
+            add(object);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        boolean collectionsHasChanged = false;
+        for (Object x : c) {
+            if (contains(x)) {
+                remove(x);
+                amountOccupiedSpaces--;
+                collectionsHasChanged = true;
+            }
+        }
+        return collectionsHasChanged;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        boolean collectionHasChanged = false;
+        for (int i = 0; i < amountOccupiedSpaces; i++) {
+            if (!c.contains(getSpace(i))) {
+                remove(i--);
+                collectionHasChanged = true;
+            }
+        }
+        return collectionHasChanged;
+    }
+
+    @Override
+    public void clear() {
+        spaces = new Space[16];
+        amountOccupiedSpaces = 0;
     }
 
     @Override
@@ -275,12 +378,39 @@ public class OwnersFloor implements Floor {
 
     @Override
     public int hashCode() {
-        int result = 1;
+        int result = 71 * amountOccupiedSpaces;
 
         for (int i = 0; i < amountOccupiedSpaces; i++) {
-            result = 71 * result + (spaces[i] == null ? 0 : spaces[i].hashCode());
+            result ^= (spaces[i] == null ? 0 : spaces[i].hashCode());
         }
 
         return result;
+    }
+
+    @Override
+    public OwnersFloor clone() throws CloneNotSupportedException {
+        return (OwnersFloor) super.clone();
+    }
+
+    @Override
+    public Iterator<Space> iterator() {
+        return new SpaceIterator();
+    }
+
+    private class SpaceIterator implements Iterator<Space> {
+        int index;
+
+        @Override
+        public boolean hasNext() {
+            return index < spaces.length;
+        }
+
+        @Override
+        public Space next() {
+            if (hasNext()) {
+                return spaces[index++];
+            }
+            return null;
+        }
     }
 }
